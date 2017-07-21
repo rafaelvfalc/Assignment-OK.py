@@ -8,6 +8,9 @@ are compatible with the GradingProtocol.
 from client.protocols.common import models
 from client.utils import format
 import logging
+import os
+from shutil import copyfile
+
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +37,7 @@ class GradingProtocol(models.Protocol):
 
 
 def grade(questions, messages, env=None, verbose=True):
+    print("AQUII")
     format.print_line('~')
     print('Running tests')
     print()
@@ -43,10 +47,12 @@ def grade(questions, messages, env=None, verbose=True):
 
     analytics = {}
     # Check if analytics info is in messages.
-    if 'analytics' in messages:
-        started = messages['analytics']['started']
-    else:
-        started = None
+    #if 'analytics' in messages:
+    #    started = messages['analytics']['started']
+    #else:
+    #    started = None
+
+    started = None #Lembrar de tirar
 
     # The environment in which to run the tests.
     for test in questions:
@@ -61,6 +67,21 @@ def grade(questions, messages, env=None, verbose=True):
             failed += results['failed']
             locked += results['locked']
             analytics[test.name] = results
+
+            sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions")
+            count_of_subs = len(sub_list)
+
+            if(not failed and not locked):
+                #enviar post da questao pro refazer
+                #endpoint, nome da questão, ultima questão incorreta e a ultima solução
+
+                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
+                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/sub_correta" + str(count_of_subs))
+
+            else:
+                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
+                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/sub" + str(count_of_subs))
+
         else:
             print('It looks like you haven\'t started {}. Skipping the tests.'.format(test.name))
             print()
