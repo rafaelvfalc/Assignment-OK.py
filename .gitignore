@@ -1,0 +1,5 @@
+.idea/
+.ok_history
+submissions/*
+/venv
+__pycache__/
