@@ -37,7 +37,6 @@ class GradingProtocol(models.Protocol):
 
 
 def grade(questions, messages, env=None, verbose=True):
-    print("AQUII")
     format.print_line('~')
     print('Running tests')
     print()
@@ -54,6 +53,10 @@ def grade(questions, messages, env=None, verbose=True):
 
     started = None #Lembrar de tirar
 
+    total_of_failed = 0
+    total_of_passed = 0
+    total_of_locked = 0
+
     # The environment in which to run the tests.
     for test in questions:
         # run test if the question is not detected, or question detected and started
@@ -68,19 +71,9 @@ def grade(questions, messages, env=None, verbose=True):
             locked += results['locked']
             analytics[test.name] = results
 
-            sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions")
-            count_of_subs = len(sub_list)
-
-            if(not failed and not locked):
-                #enviar post da questao pro refazer
-                #endpoint, nome da questão, ultima questão incorreta e a ultima solução
-
-                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
-                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/sub_correta" + str(count_of_subs))
-
-            else:
-                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
-                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/sub" + str(count_of_subs))
+            total_of_passed += passed
+            total_of_failed += failed
+            total_of_locked += locked
 
         else:
             print('It looks like you haven\'t started {}. Skipping the tests.'.format(test.name))
@@ -89,6 +82,23 @@ def grade(questions, messages, env=None, verbose=True):
         if not verbose and (failed > 0 or locked > 0):
             # Stop at the first failed test
             break
+
+    if (not total_of_failed and not total_of_locked):
+        # enviar post da questao pro refazer
+        # endpoint, nome da questão, ultima questão incorreta e a ultima solução
+
+        sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions")
+        count_of_subs = len(sub_list)
+
+        copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
+                 "/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions/sub" + str(count_of_subs))
+
+    else:
+        sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
+        count_of_subs = len(sub_list)
+
+        copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
+                 "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/sub" + str(count_of_subs))
 
     format.print_progress_bar('Test summary', passed, failed, locked,
                               verbose=verbose)
