@@ -10,6 +10,8 @@ from client.utils import format
 import logging
 import os
 from shutil import copyfile
+import json
+import requests
 
 
 log = logging.getLogger(__name__)
@@ -75,6 +77,69 @@ def grade(questions, messages, env=None, verbose=True):
             total_of_failed += failed
             total_of_locked += locked
 
+            if (not failed and not locked):
+                # enviar post da questao pro refazer
+                # endpoint, nome da questão, ultima questão incorreta e a ultima solução
+
+                with open('/home/treinamento-16/workspace/Assignment-OK.py/hw02.ok') as data_file:
+                    data = json.load(data_file)
+
+                endpoint = data["endpoint"]
+
+
+                question = test.name
+
+
+                right_sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions")
+                count_of_right_subs = len(right_sub_list)
+
+                wrong_sub_list = os.listdir(
+                    "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
+                count_of_wrong_subs = len(wrong_sub_list)
+
+                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
+                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions/right_sub" + str(
+                             count_of_right_subs + 1) + ".txt")
+
+                with open("/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions/right_sub" + str(
+                        count_of_right_subs + 1)  + ".txt", 'r') as myfile:
+                    right_sub = myfile.read()
+
+                correctCode = right_sub
+
+                # Caso não contenha nenhuma submissão incorreta
+                try:
+
+                    with open("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
+                            count_of_wrong_subs) + ".txt", 'r') as myfile:
+                        wrong_sub = myfile.read()
+
+                    incorrectCode = wrong_sub
+
+                except FileNotFoundError:
+                    print( "---------------------------------------------------------------------\nYou got it in your first try, congrats!")
+
+                #REFAZER
+
+                refazerObj = {}
+                refazerObj["EndPoint"] = endpoint
+                refazerObj["Question"] = question
+                refazerObj["IncorrectCode"] = incorrectCode
+                refazerObj["CorrectCode"] = correctCode
+
+                jsonRefazer = json.dumps(refazerObj)
+                headers = {'Content-Type': 'application/json'}
+                print(requests.post("http://refazer-online.azurewebsites.net/api/examples", data=jsonRefazer, headers=headers).content)
+
+
+            else:
+                sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
+                count_of_subs = len(sub_list)
+
+                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
+                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
+                             count_of_subs + 1) + ".txt")
+
         else:
             print('It looks like you haven\'t started {}. Skipping the tests.'.format(test.name))
             print()
@@ -83,22 +148,7 @@ def grade(questions, messages, env=None, verbose=True):
             # Stop at the first failed test
             break
 
-    if (not total_of_failed and not total_of_locked):
-        # enviar post da questao pro refazer
-        # endpoint, nome da questão, ultima questão incorreta e a ultima solução
 
-        sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions")
-        count_of_subs = len(sub_list)
-
-        copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
-                 "/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions/sub" + str(count_of_subs))
-
-    else:
-        sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
-        count_of_subs = len(sub_list)
-
-        copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
-                 "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/sub" + str(count_of_subs))
 
     format.print_progress_bar('Test summary', passed, failed, locked,
                               verbose=verbose)
