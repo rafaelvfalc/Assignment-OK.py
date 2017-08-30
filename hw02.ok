@@ -8,18 +8,7 @@
         "hw02.py":  "doctest"
     },
     "default_tests": [
-        "product",
-        "factorial",
-        "accumulate",
-        "summation_using_accumulate",
-        "product_using_accumulate",
-        "filtered_accumulate",
-        "repeated",
-	"g",
-        "g_iter",
-        "pingpong",
-        "count_change",
-        "move_stack"
+        "product"
     ],
     "protocols": [
         "restore",

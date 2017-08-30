@@ -105,7 +105,7 @@ def grade(questions, messages, env=None, verbose=True):
                         count_of_right_subs + 1)  + ".txt", 'r') as myfile:
                     right_sub = myfile.read()
 
-                correctCode = right_sub
+                correct_code = right_sub
 
                 # Caso não contenha nenhuma submissão incorreta
                 try:
@@ -114,7 +114,7 @@ def grade(questions, messages, env=None, verbose=True):
                             count_of_wrong_subs) + ".txt", 'r') as myfile:
                         wrong_sub = myfile.read()
 
-                    incorrectCode = wrong_sub
+                    incorrect_code = wrong_sub
 
                 except FileNotFoundError:
                     print( "---------------------------------------------------------------------\nYou got it in your first try, congrats!")
@@ -124,8 +124,8 @@ def grade(questions, messages, env=None, verbose=True):
                 refazerObj = {}
                 refazerObj["EndPoint"] = endpoint
                 refazerObj["Question"] = question
-                refazerObj["IncorrectCode"] = incorrectCode
-                refazerObj["CorrectCode"] = correctCode
+                refazerObj["IncorrectCode"] = incorrect_code
+                refazerObj["CorrectCode"] = correct_code
 
                 jsonRefazer = json.dumps(refazerObj)
                 headers = {'Content-Type': 'application/json'}
@@ -136,9 +136,31 @@ def grade(questions, messages, env=None, verbose=True):
                 sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
                 count_of_subs = len(sub_list)
 
+                with open('/home/treinamento-16/workspace/Assignment-OK.py/hw02.ok') as data_file:
+                    data = json.load(data_file)
+
+                endpoint = data["endpoint"]
+
+                question = test.name
+
                 copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
                          "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
                              count_of_subs + 1) + ".txt")
+
+                with open("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
+                                count_of_subs + 1) + ".txt", 'r') as myfile:
+                    wrong_sub = myfile.read()
+
+                incorrect_code = wrong_sub
+                refazerObj = {}
+                refazerObj["EndPoint"] = endpoint
+                refazerObj["Question"] = question
+                refazerObj["Code"] = incorrect_code
+
+                jsonRefazer = json.dumps(refazerObj)
+                headers = {'Content-Type': 'application/json'}
+                print(requests.post("http://refazer-online.azurewebsites.net/api/submissions/fix", data=jsonRefazer,
+                                    headers=headers).content)
 
         else:
             print('It looks like you haven\'t started {}. Skipping the tests.'.format(test.name))
