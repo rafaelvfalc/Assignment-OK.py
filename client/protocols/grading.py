@@ -72,7 +72,7 @@ def grade(questions, messages, env=None, verbose=True):
             failed += results['failed']
             locked += results['locked']
             analytics[test.name] = results
-
+            current_directory = os.getcwd()
             total_of_passed += passed
             total_of_failed += failed
             total_of_locked += locked
@@ -81,7 +81,7 @@ def grade(questions, messages, env=None, verbose=True):
                 # enviar post da questao pro refazer
                 # endpoint, nome da questão, ultima questão incorreta e a ultima solução
 
-                with open('/home/treinamento-16/workspace/Assignment-OK.py/hw02.ok') as data_file:
+                with open(current_directory + 'hw02.ok') as data_file:
                     data = json.load(data_file)
 
                 endpoint = data["endpoint"]
@@ -90,18 +90,18 @@ def grade(questions, messages, env=None, verbose=True):
                 question = test.name
 
 
-                right_sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions")
+                right_sub_list = os.listdir(current_directory + "submissions/right_submissions")
                 count_of_right_subs = len(right_sub_list)
 
                 wrong_sub_list = os.listdir(
-                    "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
+                    current_directory + "submissions/wrong_submissions")
                 count_of_wrong_subs = len(wrong_sub_list)
 
-                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
-                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions/right_sub" + str(
+                copyfile(current_directory + "hw02.py",
+                         current_directory + "submissions/right_submissions/right_sub" + str(
                              count_of_right_subs + 1) + ".txt")
 
-                with open("/home/treinamento-16/workspace/Assignment-OK.py/submissions/right_submissions/right_sub" + str(
+                with open(current_directory + "submissions/right_submissions/right_sub" + str(
                         count_of_right_subs + 1)  + ".txt", 'r') as myfile:
                     right_sub = myfile.read()
 
@@ -110,7 +110,7 @@ def grade(questions, messages, env=None, verbose=True):
                 # Caso não contenha nenhuma submissão incorreta
                 try:
 
-                    with open("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
+                    with open(current_directory + "submissions/wrong_submissions/wrong_sub" + str(
                             count_of_wrong_subs) + ".txt", 'r') as myfile:
                         wrong_sub = myfile.read()
 
@@ -133,21 +133,21 @@ def grade(questions, messages, env=None, verbose=True):
 
 
             else:
-                sub_list = os.listdir("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions")
+                sub_list = os.listdir(current_directory + "submissions/wrong_submissions")
                 count_of_subs = len(sub_list)
 
-                with open('/home/treinamento-16/workspace/Assignment-OK.py/hw02.ok') as data_file:
+                with open(current_directory + 'hw02.ok') as data_file:
                     data = json.load(data_file)
 
                 endpoint = data["endpoint"]
 
                 question = test.name
 
-                copyfile("/home/treinamento-16/workspace/Assignment-OK.py/hw02.py",
-                         "/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
+                copyfile(current_directory + "hw02.py",
+                         current_directory + "submissions/wrong_submissions/wrong_sub" + str(
                              count_of_subs + 1) + ".txt")
 
-                with open("/home/treinamento-16/workspace/Assignment-OK.py/submissions/wrong_submissions/wrong_sub" + str(
+                with open(current_directory + "submissions/wrong_submissions/wrong_sub" + str(
                                 count_of_subs + 1) + ".txt", 'r') as myfile:
                     wrong_sub = myfile.read()
 
